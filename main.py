@@ -102,8 +102,8 @@ def main():
 
 ff_options = webdriver.firefox.options.Options()
 ff_options.add_argument('--headless')
-#work = webdriver.Firefox(options=ff_options)
-work = webdriver.Firefox()
+work = webdriver.Firefox(options=ff_options)
+#work = webdriver.Firefox()
 wait = WebDriverWait(work, 20)
 
 if __name__ == '__main__':
