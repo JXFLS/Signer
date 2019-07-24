@@ -1,53 +1,40 @@
 # -*- coding:utf-8 -*-
 
+from signer.pre import getYaml
+from signer.notice import notice
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from selenium.common.exceptions import ElementNotVisibleException 
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import ElementNotVisibleException
 
-Source = "users.inf"
+Config = getYaml()
 URL = "https://www.10ms.ml"
 
-class User(object):
-    
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-    
-    def Username(self, name=None):
-        if name is not None:
-            self.username = name
-        return self.username
-    
-    def Password(self, word=None):
-        if word is not None:
-            self.password = word
-        return self.password
-
-
-def get_user():
-    file = open(Source, 'r')
-    datas = file.readlines()
-    file.close()
-    users = [User(datas[i*2][:-1],datas[i*2+1][:-1]) for i in range(len(datas)//2)]
-    return users
 
 def login(user):
+    print(user['email'])
     work.get(URL + "/auth/login")
     work.implicitly_wait(0.2)
-    work.find_element_by_id("email").send_keys(user.Username())
+    work.find_element_by_id("email").send_keys(user['email'])
     work.implicitly_wait(0.2)
-    work.find_element_by_id("passwd").send_keys(user.Password())
+    work.find_element_by_id("passwd").send_keys(user['password'])
     work.implicitly_wait(0.2)
     work.find_element_by_id("login").click()
     return
 
+
+def sendNotice(title, text):
+    key = Config['sendkey']
+    notice(key, title, text)
+
+
 def main():
-    users = get_user()
+    users = Config['users']
     var = 0
     bests = []
     res = []
@@ -56,12 +43,14 @@ def main():
     for user in users:
         login(user)
         try:
-            remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
+            remain = wait.until(
+                EC.visibility_of_element_located((By.ID, 'remain')))
         except TimeoutException:
-            with open('error.log','a') as ferr:
-                ferr.write("ERROR! " + user.Username() + ":Failed to login\n")
+            sendNotice("ERROR!", user['email'] + ": failed to login\n")
+            with open('error.log', 'a') as ferr:
+                ferr.write("ERROR! " + user['email'] + ": failed to login\n")
         with open('signer.log', 'a') as l:
-            l.write(user.Username() + ':remain: ' + remain.text + '\n')
+            l.write(user['email'] + ':remain: ' + remain.text + '\n')
         try:
             button = work.find_element_by_id('checkin')
             button.click()
@@ -69,17 +58,18 @@ def main():
                 l.write(user.Username + ":check in successfully\n")
             tot = tot + 1
             record = work.find_element_by_id('msg').text
-            num = str(text[4:-6])
-            strnum = text[4:-6]
+            num = str(record[4:-6])
+            strnum = record[4:-6]
             with open('signer.log', 'a') as l:
-                l.write(user.Username() + ":get " + strnum + '\n')
+                l.write(user['email'] + ":get " + strnum + '\n')
             res.append(num)
-            names.append(user.Username())
+            names.append(user['email'])
             if (var < num):
-                 var = num
+                var = num
         except NoSuchElementException:
-            with open('error.log','w') as ferr:
-                ferr.write("warning:" + user.Username() + ":has checked in\n")
+            sendNotice("warning:", user['email'] + ": has checked in\n")
+            with open('error.log', 'w') as ferr:
+                ferr.write("warning:" + user['email'] + ": has checked in\n")
         work.implicitly_wait(0.5)
         work.get(URL + "/user/logout")
         work.implicitly_wait(0.5)
@@ -100,17 +90,18 @@ def main():
             l.write("No one! Lucky next time~~")
     return
 
+
 ff_options = webdriver.firefox.options.Options()
+
 ff_options.add_argument('--headless')
 work = webdriver.Firefox(options=ff_options)
-#work = webdriver.Firefox()
 wait = WebDriverWait(work, 20)
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        with open('error.log','w') as ferr:
+        with open('error.log', 'w') as ferr:
             ferr.write(str(e))
     finally:
         work.quit()

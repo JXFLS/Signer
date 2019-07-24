@@ -1,7 +1,5 @@
 # -*- coding:utf-8 -*-
 
-# server酱推送
-# 调用方法：notice("sckey", "标题", "内容")
 
 import requests
 
