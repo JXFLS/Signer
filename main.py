@@ -58,26 +58,28 @@ def main():
         try:
             remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
         except TimeoutException:
-            with open('error.log','w') as ferr:
-                ferr.write("ERROR! " + user.Username() + ":Failed to login")
-            continue
-        print(user.Username() + ':remain: ' + remain.text)
+            with open('error.log','a') as ferr:
+                ferr.write("ERROR! " + user.Username() + ":Failed to login\n")
+        with open('signer.log', 'a') as l:
+            l.write(user.Username() + ':remain: ' + remain.text + '\n')
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            print(user.Username() + ":check in successfully")
+            with open('signer.log', 'a') as l:
+                l.write(user.Username + ":check in successfully\n")
             tot = tot + 1
             record = work.find_element_by_id('msg').text
             num = str(text[4:-6])
-            string = text[4:-6]
-            print(user.Username() + ":get: " + string)
+            strnum = text[4:-6]
+            with open('signer.log', 'a') as l:
+                l.write(user.Username() + ":get " + strnum + '\n')
             res.append(num)
             names.append(user.Username())
             if (var < num):
                  var = num
         except NoSuchElementException:
             with open('error.log','w') as ferr:
-                ferr.write("warning:" + user.Username() + ":has checked in")
+                ferr.write("warning:" + user.Username() + ":has checked in\n")
         work.implicitly_wait(0.5)
         work.get(URL + "/user/logout")
         work.implicitly_wait(0.5)
@@ -85,13 +87,17 @@ def main():
     for i in range(len(names)):
         if res[i] == var:
             bests.append(names[i])
-    print("Today's best person/people is/are....", end = " ")
+    with open('signer.log', 'a') as l:
+        l.write("Today's best person/people is/are....")
     if tot > 0:
         for best in bests:
-            print(best, end = " ")
-        print(", they got" + str(var))
+            with open('signer.log', 'a') as l:
+                l.write(best + " ")
+        with open('signer.log', 'a') as l:
+            l.write("they got " + str(var) + '\n')
     else:
-        print("No one! Lucky next time~~")
+        with open('signer.log', 'a') as l:
+            l.write("No one! Lucky next time~~")
     return
 
 ff_options = webdriver.firefox.options.Options()
@@ -108,5 +114,3 @@ if __name__ == '__main__':
             ferr.write(str(e))
     finally:
         work.quit()
-
-
