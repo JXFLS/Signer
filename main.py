@@ -17,7 +17,6 @@ URL = "https://www.10ms.ml"
 
 
 def login(user):
-    print(user['email'])
     work.get(URL + "/auth/login")
     work.implicitly_wait(0.2)
     work.find_element_by_id("email").send_keys(user['email'])
