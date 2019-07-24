@@ -48,11 +48,6 @@ def login(user):
 
 def main():
     users = get_user()
-    var = 0
-    bests = []
-    res = []
-    names = []
-    tot = 0
     for user in users:
         login(user)
         try:
@@ -61,20 +56,9 @@ def main():
             with open('error.log','w') as ferr:
                 ferr.write("ERROR! " + user.Username() + ":Failed to login")
             continue
-        print(user.Username() + ':remain: ' + remain.text)
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            print(user.Username() + ":check in successfully")
-            tot = tot + 1
-            record = work.find_element_by_id('msg').text
-            num = str(text[4:-6])
-            string = text[4:-6]
-            print(user.Username() + ":get: " + string)
-            res.append(num)
-            names.append(user.Username())
-            if (var < num):
-                 var = num
         except NoSuchElementException:
             with open('error.log','w') as ferr:
                 ferr.write("warning:" + user.Username() + ":has checked in")
@@ -82,16 +66,6 @@ def main():
         work.get(URL + "/user/logout")
         work.implicitly_wait(0.5)
     work.quit()
-    for i in range(len(names)):
-        if res[i] == var:
-            bests.append(names[i])
-    print("Today's best person/people is/are....", end = " ")
-    if tot > 0:
-        for best in bests:
-            print(best, end = " ")
-        print(", they got" + str(var))
-    else:
-        print("No one! Lucky next time~~")
     return
 
 ff_options = webdriver.firefox.options.Options()
