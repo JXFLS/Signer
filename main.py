@@ -41,6 +41,7 @@ def main():
     tot = 0
     for user in users:
         login(user)
+        msg = ""
         try:
             remain = wait.until(
                 EC.visibility_of_element_located((By.ID, 'remain')))
@@ -48,19 +49,16 @@ def main():
             sendNotice("ERROR!", user['email'] + ": failed to login\n")
             with open('error.log', 'a') as ferr:
                 ferr.write("ERROR! " + user['email'] + ": failed to login\n")
-        with open('signer.log', 'a') as l:
-            l.write(user['email'] + ':remain: ' + remain.text + '\n')
+            msg = msg + user['email'] + ':remain ' + remain.text + '\n'
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            with open('signer.log', 'a') as l:
-                l.write(user.Username + ":check in successfully\n")
+            msg = msg + user['email'] + ":check in successfully\n"
             tot = tot + 1
             record = work.find_element_by_id('msg').text
             num = str(record[4:-6])
             strnum = record[4:-6]
-            with open('signer.log', 'a') as l:
-                l.write(user['email'] + ":get " + strnum + '\n')
+            msg = msg + user['email'] + ":get " + struum + '\n'
             res.append(num)
             names.append(user['email'])
             if (var < num):
@@ -76,22 +74,20 @@ def main():
     for i in range(len(names)):
         if res[i] == var:
             bests.append(names[i])
-    with open('signer.log', 'a') as l:
-        l.write("Today's best person/people is/are....")
+    msg = msg + "Today's best person/people is/are.... "
     if tot > 0:
         for best in bests:
-            with open('signer.log', 'a') as l:
-                l.write(best + " ")
-        with open('signer.log', 'a') as l:
-            l.write("they got " + str(var) + '\n')
+            msg = msg + best + " "
+        msg = msg + "got " + str(var) + '\n'
     else:
-        with open('signer.log', 'a') as l:
-            l.write("No one! Lucky next time~~")
+        msg = msg + "No one! Lucky next time~~\n"
+
+    with open("signer.log", "a") as l:
+        l.write(msg)
     return
 
 
 ff_options = webdriver.firefox.options.Options()
-
 ff_options.add_argument('--headless')
 work = webdriver.Firefox(options=ff_options)
 wait = WebDriverWait(work, 20)
@@ -100,7 +96,7 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        with open('error.log', 'w') as ferr:
+        with open('error.log', 'a') as ferr:
             ferr.write(str(e))
     finally:
         work.quit()
