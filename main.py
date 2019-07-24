@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 
+from time import asctime
 from signer.pre import getYaml
 from signer.notice import notice
 
@@ -14,9 +15,11 @@ from selenium.common.exceptions import ElementNotVisibleException
 
 Config = getYaml()
 URL = "https://www.10ms.ml"
+msg = list()
 
 
 def login(user):
+    work.get(URL + "/user/logout")
     work.get(URL + "/auth/login")
     work.implicitly_wait(0.2)
     work.find_element_by_id("email").send_keys(user['email'])
@@ -27,63 +30,62 @@ def login(user):
     return
 
 
-def sendNotice(title, text):
-    key = Config['sendkey']
-    notice(key, title, text)
-
+def errorToken(title, text):
+    global msg
+    with open('error.log', 'a') as ferr:
+        ferr.write(title)
+        ferr.write(text)
+    for key in Config['sendkey']:
+        msg.append(text + "    sending notice -> " + notice(key, title, text).decode())
+    return
 
 def main():
+    global msg
     users = Config['users']
-    var = 0
-    bests = []
-    res = []
-    names = []
-    tot = 0
+    var = int()
+    bests = list()
+    res = list()
+    names = list()
+    lucky = list()
+    msg.append('-------' + asctime() + '-------')
     for user in users:
         login(user)
-        msg = ""
         try:
             remain = wait.until(
                 EC.visibility_of_element_located((By.ID, 'remain')))
         except TimeoutException:
-            sendNotice("ERROR!", user['email'] + ": failed to login\n")
-            with open('error.log', 'a') as ferr:
-                ferr.write("ERROR! " + user['email'] + ": failed to login\n")
-            msg = msg + user['email'] + ':remain ' + remain.text + '\n'
+            errorToken("ERROR! ", user['email'] + " failed to login\n")
+            continue
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            msg = msg + user['email'] + ":check in successfully\n"
-            tot = tot + 1
             record = work.find_element_by_id('msg').text
-            num = str(record[4:-6])
             strnum = record[4:-6]
-            msg = msg + user['email'] + ":get " + struum + '\n'
+            num = int(strnum)
             res.append(num)
             names.append(user['email'])
-            if (var < num):
+            if var < num:
                 var = num
         except NoSuchElementException:
-            sendNotice("warning:", user['email'] + ": has checked in\n")
-            with open('error.log', 'w') as ferr:
-                ferr.write("warning:" + user['email'] + ": has checked in\n")
-        work.implicitly_wait(0.5)
-        work.get(URL + "/user/logout")
-        work.implicitly_wait(0.5)
-    work.quit()
+            msg.append(user['email'] + " has checked in, remain " + remain.text)
+            continue
+        msg.append(user['email'] + "checked in successfully, get " + strnum + "MB, remain " + remain.text)
     for i in range(len(names)):
         if res[i] == var:
             bests.append(names[i])
-    msg = msg + "Today's best person/people is/are.... "
-    if tot > 0:
-        for best in bests:
-            msg = msg + best + " "
-        msg = msg + "got " + str(var) + '\n'
+    if len(bests)==1:
+        lucky.append("Today's best person is... ")
+        lucky.append(bests[0])
+        lucky.append(" got ")
+        lucky.append(str(var))
+    elif len(bests)==0:
+        lucky.append("Today's best person is... Nobody! Lucky next time~~")
     else:
-        msg = msg + "No one! Lucky next time~~\n"
-
-    with open("signer.log", "a") as l:
-        l.write(msg)
+        lucky.append("Today's best people are... ")
+        lucky.append(' '.join(bests))
+        lucky.append(" got ")
+        lucky.append(str(var))
+    msg.append(''.join(lucky))
     return
 
 
@@ -96,7 +98,16 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
+        err = str(e)
+        msg.append(err)
         with open('error.log', 'a') as ferr:
-            ferr.write(str(e))
+            ferr.write(asctime())
+            ferr.write('\n')
+            ferr.write(err)
+            ferr.write('\n')
     finally:
+        output = '\n'.join(msg) + '\n'
+        with open('signer.log','a') as fout:
+            fout.write(output)
         work.quit()
+        print(output)
