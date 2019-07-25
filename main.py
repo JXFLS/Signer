@@ -54,15 +54,14 @@ def main():
     for user in users:
         login(user)
         try:
-            remain = wait.until(
-                EC.visibility_of_element_located((By.ID, 'remain')))
+            remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
         except TimeoutException:
             errorToken("ERROR! ", user['email'] + " failed to login\n")
             continue
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            record = work.find_element_by_id('msg').text
+            remain = wait.until(EC.visibility_of_element_located((By.ID, 'msg'))).text
             strnum = record[4:-6]
             num = int(strnum)
             res.append(num)
