@@ -61,7 +61,7 @@ def main():
         try:
             button = work.find_element_by_id('checkin')
             button.click()
-            remain = wait.until(EC.visibility_of_element_located((By.ID, 'msg'))).text
+            record = wait.until(EC.visibility_of_element_located((By.ID, 'msg'))).text
             strnum = record[4:-6]
             num = int(strnum)
             res.append(num)
