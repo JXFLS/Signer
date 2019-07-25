@@ -33,8 +33,11 @@ def login(user):
 def errorToken(title, text):
     global msg
     with open('error.log', 'a') as ferr:
+        ferr.write(asctime())
+        ferr.write('\n')
         ferr.write(title)
         ferr.write(text)
+        ferr.write('\n')
     for key in Config['sendkey']:
         msg.append(text + "    sending notice -> " + notice(key, title, text).decode())
     return
@@ -100,11 +103,7 @@ if __name__ == '__main__':
     except Exception as e:
         err = str(e)
         msg.append(err)
-        with open('error.log', 'a') as ferr:
-            ferr.write(asctime())
-            ferr.write('\n')
-            ferr.write(err)
-            ferr.write('\n')
+        errorToken("ERROR! ", err)
     finally:
         output = '\n'.join(msg) + '\n'
         with open('signer.log','a') as fout:
