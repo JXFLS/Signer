@@ -71,7 +71,8 @@ def main():
         except NoSuchElementException:
             msg.append(user['email'] + " has checked in, remain " + remain.text)
             continue
-        msg.append(user['email'] + "checked in successfully, get " + strnum + "MB, remain " + remain.text)
+        work.implicitly_wait(1)
+        msg.append(user['email'] + " check in successfully, get " + strnum + "MB, remain " + remain.text)
     for i in range(len(names)):
         if res[i] == var:
             bests.append(names[i])
@@ -87,6 +88,7 @@ def main():
         lucky.append(' '.join(bests))
         lucky.append(" got ")
         lucky.append(str(var))
+        lucky.append("MB!")
     msg.append(''.join(lucky))
     return
 
