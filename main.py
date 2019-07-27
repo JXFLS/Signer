@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
-from time import asctime
+from sys import argv,exc_info
+from time import asctime,sleep
 from signer.pre import getYaml
 from signer.notice import notice
 
@@ -21,11 +22,11 @@ msg = list()
 def login(user):
     work.get(URL + "/user/logout")
     work.get(URL + "/auth/login")
-    work.implicitly_wait(0.2)
+    sleep(0.2)
     work.find_element_by_id("email").send_keys(user['email'])
-    work.implicitly_wait(0.2)
+    sleep(0.2)
     work.find_element_by_id("passwd").send_keys(user['password'])
-    work.implicitly_wait(0.2)
+    sleep(0.2)
     work.find_element_by_id("login").click()
     return
 
@@ -59,6 +60,7 @@ def main():
             errorToken("ERROR! ", user['email'] + " failed to login\n")
             continue
         try:
+            # button = wait.until(EC.visibility_of_element_located((By.ID, 'checkin')))
             button = work.find_element_by_id('checkin')
             button.click()
             record = wait.until(EC.visibility_of_element_located((By.ID, 'msg'))).text
@@ -71,7 +73,8 @@ def main():
         except NoSuchElementException:
             msg.append(user['email'] + " has checked in, remain " + remain.text)
             continue
-        work.implicitly_wait(1)
+        wait.until(EC.visibility_of_element_located((By.ID, 'ok_result'))).click()
+        remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
         msg.append(user['email'] + " check in successfully, get " + strnum + "MB, remain " + remain.text)
     for i in range(len(names)):
         if res[i] == var:
@@ -81,6 +84,7 @@ def main():
         lucky.append(bests[0])
         lucky.append(" got ")
         lucky.append(str(var))
+        lucky.append("MB!")
     elif len(bests)==0:
         lucky.append("Today's best person is... Nobody! Lucky next time~~")
     else:
@@ -97,12 +101,13 @@ ff_options = webdriver.firefox.options.Options()
 ff_options.add_argument('--headless')
 work = webdriver.Firefox(options=ff_options)
 wait = WebDriverWait(work, 20)
+work.implicitly_wait(1)
 
 if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        err = str(e)
+        err = "Exception: { " + str(e) + " } Details: { " + str(exc_info()) + " }"
         msg.append(err)
         errorToken("ERROR! ", err)
     finally:
