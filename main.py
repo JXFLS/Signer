@@ -73,8 +73,10 @@ def main():
         except NoSuchElementException:
             msg.append(user['email'] + " has checked in, remain " + remain.text)
             continue
-        wait.until(EC.visibility_of_element_located((By.ID, 'ok_result'))).click()
-        remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
+        work.find_element_by_id('ok_result').click();
+        # wait.until(EC.visibility_of_element_located((By.ID, 'ok_result'))).click()
+        remain = work.find_element_by_id('remain')
+        sleep(0.2)
         msg.append(user['email'] + " check in successfully, get " + strnum + "MB, remain " + remain.text)
     for i in range(len(names)):
         if res[i] == var:
