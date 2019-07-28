@@ -73,7 +73,7 @@ def main():
         except NoSuchElementException:
             msg.append(user['email'] + " has checked in, remain " + remain.text)
             continue
-        work.find_element_by_id('ok_result').click();
+        work.find_element_by_id('result_ok').click();
         # wait.until(EC.visibility_of_element_located((By.ID, 'ok_result'))).click()
         remain = work.find_element_by_id('remain')
         sleep(0.2)
