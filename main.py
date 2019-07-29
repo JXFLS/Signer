@@ -59,6 +59,7 @@ def main():
         except TimeoutException:
             errorToken("ERROR! ", user['email'] + " failed to login\n")
             continue
+        sleep(1)
         try:
             # button = wait.until(EC.visibility_of_element_located((By.ID, 'checkin')))
             button = work.find_element_by_id('checkin')
