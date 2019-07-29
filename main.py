@@ -75,7 +75,9 @@ def main():
             msg.append(user['email'] + " has checked in, remain " + remain.text)
             continue
         wait.until(EC.visibility_of_element_located((By.ID, 'result_ok'))).click()
-        remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
+        sleep(1)
+        #remain = wait.until(EC.visibility_of_element_located((By.ID, 'remain')))
+        remain = work.find_element_by_id('remain')
         msg.append(user['email'] + " check in successfully, get " + strnum + "MB, remain " + remain.text)
     for i in range(len(names)):
         if res[i] == var:
